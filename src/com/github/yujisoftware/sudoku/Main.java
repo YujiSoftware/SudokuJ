@@ -6,18 +6,19 @@ import java.io.IOException;
 public class Main {
 
 	public static void main(String[] args) throws IOException {
+		String file = args[0];
+		int rows = Integer.parseInt(args[1]);
+
+		Sudoku[] sudoku = new Sudoku[rows];
 		FileReader reader = null;
 		try {
-			reader = new FileReader(args[0]);
+			reader = new FileReader(file);
 
 			// 1行目をスキップ
 			while (reader.read() != '\n') {
 			}
 
-			int row = 1;
-			do {
-				System.out.println(row++);
-
+			for (int i = 0; i < sudoku.length; i++) {
 				// 問題
 				char[] quizzes = new char[9 * 9];
 				reader.read(quizzes, 0, quizzes.length);
@@ -29,22 +30,32 @@ public class Main {
 				char[] solutions = new char[9 * 9];
 				reader.read(solutions, 0, solutions.length);
 
-				Sudoku sudoku = Sudoku.parse(quizzes);
-				if (!solve(sudoku)) {
-					throw new RuntimeException("Unsolved. [" + sudoku + "]");
-				}
+				// 改行 (読み捨て)
+				reader.read();
 
-				for (int i = 0; i < solutions.length; i++) {
-					if (solutions[i] - '0' != sudoku.get(i)) {
-						throw new RuntimeException("Invalid. [" + sudoku + "]");
-					}
-				}
-			} while (reader.read() != -1);
+				sudoku[i] = Sudoku.parse(quizzes, solutions);
+			}
 		} finally {
 			if (reader != null) {
 				reader.close();
 			}
 		}
+
+		System.err.println("Start...");
+
+		long start = System.currentTimeMillis();
+		for (int i = 0; i < sudoku.length; i++) {
+			if (!solve(sudoku[i])) {
+				throw new RuntimeException("Unsolved. [" + sudoku[i] + "]");
+			}
+
+			if (!sudoku[i].isValid()) {
+				throw new RuntimeException("Invalid. [" + sudoku[i] + "]");
+			}
+		}
+		long end = System.currentTimeMillis();
+
+		System.out.println((end - start) + "ms");
 	}
 
 	private static boolean solve(Sudoku sudoku) {
@@ -78,6 +89,7 @@ public class Main {
 			return true;
 		}
 
+		// 候補が少ない箇所を探す
 		int count = Integer.MAX_VALUE;
 		int index = 0;
 		for (int i = 0; i < 9 * 9; i++) {
@@ -92,6 +104,7 @@ public class Main {
 			}
 		}
 
+		// 複数ある候補のうちの一つを仮定して、再帰的に解析
 		int candidate = sudoku.getCandidateBit(index);
 		for (int i = 0; i < 9; i++) {
 			int bit = candidate & 1 << i;
@@ -114,6 +127,7 @@ public class Main {
 	}
 
 	private static byte toNum(int bit) {
+		// 対数関数で計算できるが、パターンが少ないので switch の方が速い
 		switch (bit) {
 		case 1:
 			return 1;
@@ -139,10 +153,12 @@ public class Main {
 	}
 
 	private static int highestOneBit(int i) {
+		// Integer.highestOneBit(int) から流用
 		return i & (Integer.MIN_VALUE >>> numberOfLeadingZeros(i));
 	}
 
 	private static int numberOfLeadingZeros(int i) {
+		// Integer.numberOfLeadingZeros(int) から流用
 		if (i <= 0)
 			return i == 0 ? 32 : 0;
 		int n = 31;
@@ -166,10 +182,12 @@ public class Main {
 	}
 
 	private static int lowestOneBit(int i) {
+		// Integer.lowestOneBit(int) から流用
 		return i & -i;
 	}
 
 	private static int bitCount(int i) {
+		// Integer.bitCount(int) から流用
 		i = i - ((i >>> 1) & 0x55555555);
 		i = (i & 0x33333333) + ((i >>> 2) & 0x33333333);
 		i = (i + (i >>> 4)) & 0x0f0f0f0f;

@@ -1,19 +1,25 @@
 package com.github.yujisoftware.sudoku;
 
 public class Sudoku {
+	private final byte[] solutions;
+
 	private byte[] quizzes = new byte[9 * 9];
 	private int[] horizontal = new int[9];
 	private int[] vertical = new int[9];
 	private int[] box = new int[9];
 
-	private Sudoku(byte[] quizzes, int[] horizontal, int[] vertical, int[] box) {
+	private Sudoku(byte[] quizzes, byte[] solutions, int[] horizontal, int[] vertical, int[] box) {
+		this.solutions = solutions;
+
 		System.arraycopy(quizzes, 0, this.quizzes, 0, this.quizzes.length);
 		System.arraycopy(horizontal, 0, this.horizontal, 0, this.horizontal.length);
 		System.arraycopy(vertical, 0, this.vertical, 0, this.vertical.length);
 		System.arraycopy(box, 0, this.box, 0, this.box.length);
 	}
 
-	public Sudoku(byte[] quizzes) {
+	public Sudoku(byte[] quizzes, byte[] solutions) {
+		this.solutions = solutions;
+
 		for (int i = 0; i < quizzes.length; i++) {
 			if (quizzes[i] != 0) {
 				set(i, quizzes[i]);
@@ -21,13 +27,18 @@ public class Sudoku {
 		}
 	}
 
-	public static Sudoku parse(char[] quizzes) {
+	public static Sudoku parse(char[] quizzes, char[] solutions) {
 		byte[] q = new byte[quizzes.length];
 		for (int i = 0; i < quizzes.length; i++) {
 			q[i] = (byte) (quizzes[i] - '0');
 		}
 
-		return new Sudoku(q);
+		byte[] s = new byte[solutions.length];
+		for (int i = 0; i < solutions.length; i++) {
+			s[i] = (byte) (solutions[i] - '0');
+		}
+
+		return new Sudoku(q, s);
 	}
 
 	public byte get(int index) {
@@ -57,8 +68,18 @@ public class Sudoku {
 		return ~bit & 0x1FF;
 	}
 
+	public boolean isValid() {
+		for (int i = 0; i < quizzes.length; i++) {
+			if (quizzes[i] != solutions[i]) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	public Object clone() {
-		return new Sudoku(quizzes, horizontal, vertical, box);
+		return new Sudoku(quizzes, solutions, horizontal, vertical, box);
 	}
 
 	public String toString() {
