@@ -9,6 +9,9 @@ public class Main {
 		String file = args[0];
 		int rows = Integer.parseInt(args[1]);
 
+		System.err.println("Start read...");
+
+		long startRead = System.currentTimeMillis();
 		Sudoku[] sudoku = new Sudoku[rows];
 		FileReader reader = null;
 		try {
@@ -40,10 +43,11 @@ public class Main {
 				reader.close();
 			}
 		}
+		long endRead = System.currentTimeMillis();
 
-		System.err.println("Start...");
+		System.err.println("Start resolve...");
 
-		long start = System.currentTimeMillis();
+		long startSolve = System.currentTimeMillis();
 		for (int i = 0; i < sudoku.length; i++) {
 			if (!solve(sudoku[i])) {
 				throw new RuntimeException("Unsolved. [" + sudoku[i] + "]");
@@ -53,9 +57,9 @@ public class Main {
 				throw new RuntimeException("Invalid. [" + sudoku[i] + "]");
 			}
 		}
-		long end = System.currentTimeMillis();
+		long endSolve = System.currentTimeMillis();
 
-		System.out.println((end - start) + "ms");
+		System.out.println((endRead - startRead) + "ms\t" + (endSolve - startSolve) + "ms");
 	}
 
 	private static boolean solve(Sudoku sudoku) {
