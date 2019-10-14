@@ -13,10 +13,7 @@ public class Main {
 
 		long startRead = System.currentTimeMillis();
 		Sudoku[] sudoku = new Sudoku[rows];
-		FileReader reader = null;
-		try {
-			reader = new FileReader(file);
-
+		try (FileReader reader = new FileReader(file)){
 			// 1行目をスキップ
 			while (reader.read() != '\n') {
 			}
@@ -37,10 +34,6 @@ public class Main {
 				reader.read();
 
 				sudoku[i] = Sudoku.parse(quizzes, solutions);
-			}
-		} finally {
-			if (reader != null) {
-				reader.close();
 			}
 		}
 		long endRead = System.currentTimeMillis();
@@ -80,8 +73,8 @@ public class Main {
 					return false;
 				}
 
-				int highest = highestOneBit(candidate);
-				int lowest = lowestOneBit(candidate);
+				int highest = Integer.highestOneBit(candidate);
+				int lowest = Integer.lowestOneBit(candidate);
 				if (highest == lowest) {
 					sudoku.set(i, toNum(lowest));
 					updated = true;
@@ -101,7 +94,7 @@ public class Main {
 				continue;
 			}
 
-			int c = bitCount(sudoku.getCandidateBit(i));
+			int c = Integer.bitCount(sudoku.getCandidateBit(i));
 			if (c < count) {
 				count = c;
 				index = i;
@@ -116,7 +109,7 @@ public class Main {
 				continue;
 			}
 
-			Sudoku clone = (Sudoku) sudoku.clone();
+			Sudoku clone = sudoku.clone();
 			clone.set(index, toNum(bit));
 
 			if (solve(clone)) {
@@ -154,49 +147,5 @@ public class Main {
 		default:
 			throw new RuntimeException("Invalid bit. [" + bit + "]");
 		}
-	}
-
-	private static int highestOneBit(int i) {
-		// Integer.highestOneBit(int) から流用
-		return i & (Integer.MIN_VALUE >>> numberOfLeadingZeros(i));
-	}
-
-	private static int numberOfLeadingZeros(int i) {
-		// Integer.numberOfLeadingZeros(int) から流用
-		if (i <= 0)
-			return i == 0 ? 32 : 0;
-		int n = 31;
-		if (i >= 1 << 16) {
-			n -= 16;
-			i >>>= 16;
-		}
-		if (i >= 1 << 8) {
-			n -= 8;
-			i >>>= 8;
-		}
-		if (i >= 1 << 4) {
-			n -= 4;
-			i >>>= 4;
-		}
-		if (i >= 1 << 2) {
-			n -= 2;
-			i >>>= 2;
-		}
-		return n - (i >>> 1);
-	}
-
-	private static int lowestOneBit(int i) {
-		// Integer.lowestOneBit(int) から流用
-		return i & -i;
-	}
-
-	private static int bitCount(int i) {
-		// Integer.bitCount(int) から流用
-		i = i - ((i >>> 1) & 0x55555555);
-		i = (i & 0x33333333) + ((i >>> 2) & 0x33333333);
-		i = (i + (i >>> 4)) & 0x0f0f0f0f;
-		i = i + (i >>> 8);
-		i = i + (i >>> 16);
-		return i & 0x3f;
 	}
 }

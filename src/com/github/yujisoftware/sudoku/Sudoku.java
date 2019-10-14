@@ -1,24 +1,31 @@
 package com.github.yujisoftware.sudoku;
 
+import java.util.Arrays;
+
 public class Sudoku {
 	private final byte[] solutions;
 
-	private byte[] quizzes = new byte[9 * 9];
-	private int[] horizontal = new int[9];
-	private int[] vertical = new int[9];
-	private int[] box = new int[9];
+	private byte[] quizzes;
+	private int[] horizontal;
+	private int[] vertical;
+	private int[] box;
 
 	private Sudoku(byte[] quizzes, byte[] solutions, int[] horizontal, int[] vertical, int[] box) {
 		this.solutions = solutions;
 
-		System.arraycopy(quizzes, 0, this.quizzes, 0, this.quizzes.length);
-		System.arraycopy(horizontal, 0, this.horizontal, 0, this.horizontal.length);
-		System.arraycopy(vertical, 0, this.vertical, 0, this.vertical.length);
-		System.arraycopy(box, 0, this.box, 0, this.box.length);
+		this.quizzes = Arrays.copyOf(quizzes, quizzes.length);
+		this.horizontal = Arrays.copyOf(horizontal, horizontal.length);
+		this.vertical = Arrays.copyOf(vertical, vertical.length);
+		this.box = Arrays.copyOf(box, box.length);
 	}
 
 	public Sudoku(byte[] quizzes, byte[] solutions) {
 		this.solutions = solutions;
+
+		this.quizzes = new byte[9 * 9];
+		this.horizontal = new int[9];
+		this.vertical = new int[9];
+		this.box = new int[9];
 
 		for (int i = 0; i < quizzes.length; i++) {
 			if (quizzes[i] != 0) {
@@ -78,12 +85,12 @@ public class Sudoku {
 		return true;
 	}
 
-	public Object clone() {
+	public Sudoku clone() {
 		return new Sudoku(quizzes, solutions, horizontal, vertical, box);
 	}
 
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < 9; i++) {
 			if (i > 0) {
 				sb.append(System.getProperty("line.separator"));

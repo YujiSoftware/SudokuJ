@@ -8,6 +8,6 @@ Java で数独を解くプログラム
 2. コンパイルして実行
 ```sh
 cd src
-javac com/github/yujisoftware/sudoku/Main.java com/github/yujisoftware/sudoku/Sudoku.java
+javac -encoding UTF-8 com/github/yujisoftware/sudoku/Main.java com/github/yujisoftware/sudoku/Sudoku.java
 java com.github.yujisoftware.sudoku.Main ../sudoku.csv 1000000
 ```
